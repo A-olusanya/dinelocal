@@ -1,4 +1,15 @@
-<?php session_start(); ?>
+<?php
+session_start();
+// Mark welcomed when returning from the welcome animation
+if (isset($_GET['enter'])) {
+    $_SESSION['welcomed'] = true;
+}
+// Redirect new visitors to the welcome page (once per session)
+if (empty($_SESSION['welcomed'])) {
+    header('Location: welcome.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +49,17 @@
       <ul class="navbar-nav gap-1">
         <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="menu.php">Menu</a></li>
+        <?php if (!empty($_SESSION['user_id'])): ?>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Reservations</a>
+          <ul class="dropdown-menu nav-dropdown">
+            <li><a class="dropdown-item" href="dashboard.php?tab=reservations"><i class="bi bi-calendar2-check me-2"></i>View My Reservations</a></li>
+            <li><a class="dropdown-item" href="reservations.php"><i class="bi bi-plus-circle me-2"></i>Book a New Table</a></li>
+          </ul>
+        </li>
+        <?php else: ?>
         <li class="nav-item"><a class="nav-link" href="reservations.php">Reservations</a></li>
+        <?php endif; ?>
         <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
       </ul>
     </div>

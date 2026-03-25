@@ -35,10 +35,11 @@ class Reservation {
     /** Create new reservation */
     public function create(array $data): int {
         $stmt = $this->db->prepare("
-            INSERT INTO reservations (full_name, email, guests, date, time, special)
-            VALUES (:full_name, :email, :guests, :date, :time, :special)
+            INSERT INTO reservations (user_id, full_name, email, guests, date, time, special)
+            VALUES (:user_id, :full_name, :email, :guests, :date, :time, :special)
         ");
         $stmt->execute([
+            ':user_id'   => $data['user_id'] ?? null,
             ':full_name' => $data['full_name'],
             ':email'     => $data['email'],
             ':guests'    => $data['guests'],
@@ -73,8 +74,9 @@ class Reservation {
 
     /** Get today's reservations */
     public function getToday(): array {
-        $stmt = $this->db->prepare("SELECT * FROM reservations WHERE date = CURDATE() ORDER BY time ASC");
-        $stmt->execute();
+        $today = date('Y-m-d');
+        $stmt = $this->db->prepare("SELECT * FROM reservations WHERE DATE(date) = ? ORDER BY time ASC");
+        $stmt->execute([$today]);
         return $stmt->fetchAll();
     }
 }

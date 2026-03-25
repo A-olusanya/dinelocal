@@ -1,3 +1,62 @@
+<?php
+session_start();
+if (empty($_SESSION['user_id'])) { header('Location: login.php?required=1'); exit; }
+
+require_once 'config/db.php';
+require_once 'models/User.php';
+require_once 'models/Reservation.php';
+$userModel = new User();
+$resModel  = new Reservation();
+
+$userId = (int)$_SESSION['user_id'];
+$user   = $userModel->getById($userId);
+$myRes  = $userModel->getReservations($userId);
+
+// Handle profile update
+$profileMsg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if ($_POST['action'] === 'profile') {
+        $userModel->updateProfile($userId, [
+            'name'    => htmlspecialchars(trim($_POST['name'] ?? '')),
+            'phone'   => htmlspecialchars(trim($_POST['phone'] ?? '')),
+            'dietary' => htmlspecialchars(trim($_POST['dietary'] ?? '')),
+        ]);
+        $_SESSION['user_name'] = htmlspecialchars(trim($_POST['name'] ?? ''));
+        $user = $userModel->getById($userId); // refresh
+        $profileMsg = 'Profile updated successfully!';
+    }
+    if ($_POST['action'] === 'password') {
+        $cur  = $_POST['current_pw'] ?? '';
+        $new  = $_POST['new_pw'] ?? '';
+        $conf = $_POST['confirm_pw'] ?? '';
+        // Verify current password
+        $check = $userModel->login($user['email'], $cur);
+        if (!$check)            $profileMsg = 'ERROR: Current password is incorrect.';
+        elseif (strlen($new)<6) $profileMsg = 'ERROR: New password must be at least 6 characters.';
+        elseif ($new !== $conf) $profileMsg = 'ERROR: New passwords do not match.';
+        else { $userModel->changePassword($userId, $new); $profileMsg = 'Password changed successfully!'; }
+    }
+    if ($_POST['action'] === 'cancel_res') {
+        $resId = (int)($_POST['res_id'] ?? 0);
+        // Only cancel if this reservation belongs to user
+        $r = $resModel->getById($resId);
+        if ($r && $r['user_id'] == $userId) {
+            $resModel->updateStatus($resId, 'cancelled');
+        }
+        header('Location: dashboard.php?tab=reservations#res');
+        exit;
+    }
+}
+
+// Stats
+$total     = count($myRes);
+$confirmed = count(array_filter($myRes, fn($r) => $r['status']==='confirmed'));
+$upcoming  = count(array_filter($myRes, fn($r) => strtotime($r['date']) >= strtotime('today') && $r['status']!=='cancelled'));
+
+$welcome = isset($_GET['welcome']);
+$booked  = isset($_GET['booked']) ? (int)$_GET['booked'] : 0;
+$tab     = $_GET['tab'] ?? 'reservations';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,64 +131,6 @@
   </style>
 </head>
 <body>
-<?php
-session_start();
-if (empty($_SESSION['user_id'])) { header('Location: login.php?required=1'); exit; }
-
-require_once 'config/db.php';
-require_once 'models/User.php';
-require_once 'models/Reservation.php';
-$userModel = new User();
-$resModel  = new Reservation();
-
-$userId = (int)$_SESSION['user_id'];
-$user   = $userModel->getById($userId);
-$myRes  = $userModel->getReservations($userId);
-
-// Handle profile update
-$profileMsg = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'profile') {
-        $userModel->updateProfile($userId, [
-            'name'    => htmlspecialchars(trim($_POST['name'] ?? '')),
-            'phone'   => htmlspecialchars(trim($_POST['phone'] ?? '')),
-            'dietary' => htmlspecialchars(trim($_POST['dietary'] ?? '')),
-        ]);
-        $_SESSION['user_name'] = htmlspecialchars(trim($_POST['name'] ?? ''));
-        $user = $userModel->getById($userId); // refresh
-        $profileMsg = 'Profile updated successfully!';
-    }
-    if ($_POST['action'] === 'password') {
-        $cur  = $_POST['current_pw'] ?? '';
-        $new  = $_POST['new_pw'] ?? '';
-        $conf = $_POST['confirm_pw'] ?? '';
-        // Verify current password
-        $check = $userModel->login($user['email'], $cur);
-        if (!$check)            $profileMsg = 'ERROR: Current password is incorrect.';
-        elseif (strlen($new)<6) $profileMsg = 'ERROR: New password must be at least 6 characters.';
-        elseif ($new !== $conf) $profileMsg = 'ERROR: New passwords do not match.';
-        else { $userModel->changePassword($userId, $new); $profileMsg = 'Password changed successfully!'; }
-    }
-    if ($_POST['action'] === 'cancel_res') {
-        $resId = (int)($_POST['res_id'] ?? 0);
-        // Only cancel if this reservation belongs to user
-        $r = $resModel->getById($resId);
-        if ($r && $r['user_id'] == $userId) {
-            $resModel->updateStatus($resId, 'cancelled');
-        }
-        header('Location: dashboard.php?tab=reservations#res');
-        exit;
-    }
-}
-
-// Stats
-$total     = count($myRes);
-$confirmed = count(array_filter($myRes, fn($r) => $r['status']==='confirmed'));
-$upcoming  = count(array_filter($myRes, fn($r) => strtotime($r['date']) >= strtotime('today') && $r['status']!=='cancelled'));
-
-$welcome = isset($_GET['welcome']);
-$tab     = $_GET['tab'] ?? 'reservations';
-?>
 
 <div class="dash-wrap">
   <!-- Sidebar -->
@@ -160,6 +161,13 @@ $tab     = $_GET['tab'] ?? 'reservations';
 
     <?php if ($welcome): ?>
     <div class="banner-ok mb-3"><i class="bi bi-stars"></i> Welcome to DineLocal, <?= htmlspecialchars($user['name']) ?>! Your account is ready.</div>
+    <?php endif; ?>
+
+    <?php if ($booked): ?>
+    <div class="banner-ok mb-3" style="background:rgba(232,168,62,.12);border-color:rgba(232,168,62,.35);color:#7a5500">
+      <i class="bi bi-hourglass-split"></i>
+      <span>Reservation #<?= $booked ?> submitted! It is <strong>pending</strong> — an admin will confirm it shortly. You can see it below.</span>
+    </div>
     <?php endif; ?>
 
     <?php if ($profileMsg): ?>

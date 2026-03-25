@@ -22,7 +22,17 @@ $initials   = $isLoggedIn ? strtoupper(substr($userName, 0, 1)) : '';
       <ul class="navbar-nav gap-1">
         <li class="nav-item"><a class="nav-link <?= basename($_SERVER['PHP_SELF'])==='index.php'?'active':'' ?>" href="index.php">Home</a></li>
         <li class="nav-item"><a class="nav-link <?= basename($_SERVER['PHP_SELF'])==='menu.php'?'active':'' ?>" href="menu.php">Menu</a></li>
+        <?php if (!empty($_SESSION['user_id'])): ?>
+        <li class="nav-item dropdown">
+          <a class="nav-link <?= basename($_SERVER['PHP_SELF'])==='reservations.php'?'active':'' ?> dropdown-toggle" href="#" data-bs-toggle="dropdown">Reservations</a>
+          <ul class="dropdown-menu nav-dropdown">
+            <li><a class="dropdown-item" href="dashboard.php?tab=reservations"><i class="bi bi-calendar2-check me-2"></i>View My Reservations</a></li>
+            <li><a class="dropdown-item" href="reservations.php"><i class="bi bi-plus-circle me-2"></i>Book a New Table</a></li>
+          </ul>
+        </li>
+        <?php else: ?>
         <li class="nav-item"><a class="nav-link <?= basename($_SERVER['PHP_SELF'])==='reservations.php'?'active':'' ?>" href="reservations.php">Reservations</a></li>
+        <?php endif; ?>
         <li class="nav-item"><a class="nav-link <?= basename($_SERVER['PHP_SELF'])==='about.php'?'active':'' ?>" href="about.php">About</a></li>
       </ul>
     </div>

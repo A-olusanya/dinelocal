@@ -65,10 +65,16 @@ class User {
         return $stmt->execute([password_hash($newPassword, PASSWORD_BCRYPT), $id]);
     }
 
-    /** Get user's reservations */
+    /** Get user's reservations (by user_id OR matching email for guest bookings) */
     public function getReservations(int $userId): array {
-        $stmt = $this->db->prepare("SELECT * FROM reservations WHERE user_id=? ORDER BY date DESC, time ASC");
-        $stmt->execute([$userId]);
+        $user = $this->getById($userId);
+        if (!$user) return [];
+        $stmt = $this->db->prepare("
+            SELECT * FROM reservations
+            WHERE user_id = ? OR (user_id IS NULL AND email = ?)
+            ORDER BY date DESC, time ASC
+        ");
+        $stmt->execute([$userId, $user['email']]);
         return $stmt->fetchAll();
     }
 

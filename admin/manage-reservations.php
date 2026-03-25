@@ -3,6 +3,7 @@ session_start();
 require_once '../config/db.php';
 require_once '../controllers/AdminController.php';
 AdminController::requireAuth();
+AdminController::requireRole('super_admin', 'reservations_manager');
 require_once '../models/Reservation.php';
 $model = new Reservation();
 
@@ -79,9 +80,15 @@ $counts = $model->countByStatus();
     <a href="manage-reservations.php" class="nav-item active"><i class="bi bi-calendar2-check"></i> Reservations</a>
     <a href="manage-menu.php" class="nav-item"><i class="bi bi-card-list"></i> Menu Items</a>
     <a href="manage-users.php" class="nav-item"><i class="bi bi-people"></i> Users</a>
-    <a href="../index.php" class="nav-item"><i class="bi bi-arrow-left-circle"></i> View Site</a>
+    <?php if (AdminController::hasRole('super_admin')): ?>
+    <a href="manage-admins.php" class="nav-item"><i class="bi bi-shield-lock"></i> Admins</a>
+    <?php endif; ?>
+    <a href="../index.php" class="nav-item" target="_blank" rel="noopener"><i class="bi bi-arrow-left-circle"></i> View Site</a>
   </nav>
-  <div class="sidebar-footer"><a href="../index.php"><i class="bi bi-box-arrow-left"></i> Back to Website</a></div>
+  <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:.5rem;">
+    <span style="font-size:.7rem;color:rgba(251,240,220,.35);padding-bottom:.25rem"><?= htmlspecialchars($_SESSION['admin_username'] ?? '') ?> &middot; <?= htmlspecialchars($_SESSION['admin_role'] ?? '') ?></span>
+    <a href="logout.php"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
 </aside>
 
 <div class="main">

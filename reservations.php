@@ -3,6 +3,69 @@ session_start();
 $_isLoggedIn = !empty($_SESSION['user_id']);
 $_userName   = $_SESSION['user_name'] ?? '';
 $_initials   = $_isLoggedIn ? strtoupper(substr($_userName, 0, 1)) : '';
+
+// ── PHP form processing ──
+require_once 'config/db.php';
+require_once 'models/Reservation.php';
+if ($_isLoggedIn) {
+    require_once 'models/User.php';
+    $_userModel = new User();
+    $_userFull  = $_userModel->getById((int)$_SESSION['user_id']);
+}
+
+$success    = false;
+$error      = false;
+$formErrors = [];
+$formData   = [];
+$newId      = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $forSelf   = ($_POST['booking_for'] ?? 'self') === 'self';
+    $autoName  = $forSelf && $_isLoggedIn ? ($_userFull['name'] ?? '') : '';
+    $autoEmail = $forSelf && $_isLoggedIn ? ($_userFull['email'] ?? '') : '';
+
+    $formData = [
+        'fullName'   => $forSelf && $_isLoggedIn ? $autoName : htmlspecialchars(trim($_POST['fullName'] ?? '')),
+        'email'      => $forSelf && $_isLoggedIn ? $autoEmail : filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL),
+        'guests'     => htmlspecialchars(trim($_POST['guests'] ?? '')),
+        'date'       => $_POST['date'] ?? '',
+        'time'       => htmlspecialchars(trim($_POST['time'] ?? '')),
+        'special'    => htmlspecialchars(trim($_POST['special'] ?? '')),
+        'booking_for'=> $_POST['booking_for'] ?? 'self',
+    ];
+
+    if (strlen($formData['fullName']) < 2) $formErrors['fullName'] = 'Full name is required (min 2 characters).';
+    if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) $formErrors['email'] = 'A valid email address is required.';
+    if (empty($formData['guests'])) $formErrors['guests'] = 'Please select the number of guests.';
+    if (empty($formData['date'])) { $formErrors['date'] = 'Please select a date.'; }
+    elseif (strtotime($formData['date']) < strtotime('today')) { $formErrors['date'] = 'Date must be today or in the future.'; }
+    if (empty($formData['time'])) $formErrors['time'] = 'Please select a preferred time.';
+
+    if (empty($formErrors)) {
+        try {
+            $model = new Reservation();
+            $newId = $model->create([
+                'user_id'   => $_isLoggedIn ? (int)$_SESSION['user_id'] : null,
+                'full_name' => $formData['fullName'],
+                'email'     => $formData['email'],
+                'guests'    => $formData['guests'],
+                'date'      => $formData['date'],
+                'time'      => $formData['time'],
+                'special'   => $formData['special'],
+            ]);
+            $success = true;
+            // Redirect logged-in users to their dashboard reservations tab
+            if ($_isLoggedIn) {
+                header('Location: dashboard.php?tab=reservations&booked=' . $newId);
+                exit;
+            }
+        } catch (Exception $e) {
+            $error = 'Database error. Please try again.';
+        }
+    } else {
+        $error = 'Please correct the errors below.';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -88,7 +151,17 @@ $_initials   = $_isLoggedIn ? strtoupper(substr($_userName, 0, 1)) : '';
       <ul class="navbar-nav gap-1">
         <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="menu.php">Menu</a></li>
+        <?php if ($_isLoggedIn): ?>
+        <li class="nav-item dropdown">
+          <a class="nav-link active dropdown-toggle" href="#" data-bs-toggle="dropdown">Reservations</a>
+          <ul class="dropdown-menu nav-dropdown">
+            <li><a class="dropdown-item" href="dashboard.php?tab=reservations"><i class="bi bi-calendar2-check me-2"></i>View My Reservations</a></li>
+            <li><a class="dropdown-item" href="reservations.php"><i class="bi bi-plus-circle me-2"></i>Book a New Table</a></li>
+          </ul>
+        </li>
+        <?php else: ?>
         <li class="nav-item"><a class="nav-link active" href="reservations.php">Reservations</a></li>
+        <?php endif; ?>
         <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
       </ul>
     </div>
@@ -145,68 +218,18 @@ $_initials   = $_isLoggedIn ? strtoupper(substr($_userName, 0, 1)) : '';
   </div>
 </div>
 
-<?php
-// ── PHP form processing (MVC: Controller logic) ──
-require_once 'config/db.php';
-require_once 'models/Reservation.php';
-
-$success    = false;
-$error      = false;
-$formErrors = [];
-$formData   = [];
-$newId      = null;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitise inputs
-    $formData = [
-        'fullName' => htmlspecialchars(trim($_POST['fullName'] ?? '')),
-        'email'    => filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL),
-        'guests'   => htmlspecialchars(trim($_POST['guests'] ?? '')),
-        'date'     => $_POST['date'] ?? '',
-        'time'     => htmlspecialchars(trim($_POST['time'] ?? '')),
-        'special'  => htmlspecialchars(trim($_POST['special'] ?? '')),
-    ];
-
-    // Validate
-    if (strlen($formData['fullName']) < 2) $formErrors['fullName'] = 'Full name is required (min 2 characters).';
-    if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) $formErrors['email'] = 'A valid email address is required.';
-    if (empty($formData['guests'])) $formErrors['guests'] = 'Please select the number of guests.';
-    if (empty($formData['date'])) { $formErrors['date'] = 'Please select a date.'; }
-    elseif (strtotime($formData['date']) < strtotime('today')) { $formErrors['date'] = 'Date must be today or in the future.'; }
-    if (empty($formData['time'])) $formErrors['time'] = 'Please select a preferred time.';
-
-    if (empty($formErrors)) {
-        try {
-            $model = new Reservation();
-            $newId = $model->create([
-                'full_name' => $formData['fullName'],
-                'email'     => $formData['email'],
-                'guests'    => $formData['guests'],
-                'date'      => $formData['date'],
-                'time'      => $formData['time'],
-                'special'   => $formData['special'],
-            ]);
-            $success = true;
-        } catch (Exception $e) {
-            $error = 'Database error. Please try again.';
-        }
-    } else {
-        $error = 'Please correct the errors below.';
-    }
-}
-?>
 
 <!-- Main Content -->
 <main>
 
-  <!-- Success Banner -->
+  <!-- Success Banner (shown only for guests without account) -->
   <?php if ($success): ?>
   <div class="container-xl px-3 px-md-5 pt-5">
     <div class="banner banner-success">
-      <i class="bi bi-check-circle-fill"></i>
+      <i class="bi bi-hourglass-split"></i>
       <div>
-        <strong style="font-size:1rem;font-family:var(--dl-serif)">Reservation Confirmed! 🎉</strong>
-        <p class="mb-0 mt-1" style="font-size:.85rem">Thank you, <?= htmlspecialchars($formData['fullName']) ?>! Your reservation #<?= $newId ?> for <?= htmlspecialchars($formData['guests']) ?> on <?= date('F j, Y', strtotime($formData['date'])) ?> at <?= htmlspecialchars($formData['time']) ?> is confirmed. See you soon!</p>
+        <strong style="font-size:1rem;font-family:var(--dl-serif)">Reservation Received!</strong>
+        <p class="mb-0 mt-1" style="font-size:.85rem">Thank you, <?= htmlspecialchars($formData['fullName']) ?>! Your reservation #<?= $newId ?> for <?= htmlspecialchars($formData['guests']) ?> on <?= date('F j, Y', strtotime($formData['date'])) ?> at <?= htmlspecialchars($formData['time']) ?> is <strong>pending</strong> — our team will confirm it shortly.</p>
       </div>
     </div>
   </div>
@@ -301,17 +324,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form id="resForm" method="POST" action="reservations.php" novalidate>
           <div class="row g-3">
-            <div class="col-12 col-sm-6">
+
+            <?php if ($_isLoggedIn): ?>
+            <!-- Who is this booking for? -->
+            <div class="col-12">
+              <div style="background:rgba(196,85,26,.07);border-radius:.6rem;padding:.85rem 1rem;margin-bottom:.25rem">
+                <p style="font-size:.72rem;font-weight:600;color:var(--dl-brown);margin-bottom:.6rem"><i class="bi bi-person-check me-1"></i> WHO IS THIS BOOKING FOR?</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <label style="display:flex;align-items:center;gap:.45rem;cursor:pointer;font-size:.83rem;font-weight:500;color:var(--dl-brown)">
+                    <input type="radio" name="booking_for" value="self" id="forSelf" <?= (($formData['booking_for'] ?? 'self') === 'self') ? 'checked' : '' ?> style="accent-color:var(--dl-orange)"/> Myself
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.45rem;cursor:pointer;font-size:.83rem;font-weight:500;color:var(--dl-brown)">
+                    <input type="radio" name="booking_for" value="other" id="forOther" <?= (($formData['booking_for'] ?? '') === 'other') ? 'checked' : '' ?> style="accent-color:var(--dl-orange)"/> Someone Else
+                  </label>
+                </div>
+              </div>
+            </div>
+            <?php endif; ?>
+
+            <div class="col-12 col-sm-6" id="nameField">
               <div class="rf <?= isset($formErrors['fullName']) ? 'field-err' : (isset($formData['fullName']) && !isset($formErrors['fullName']) && $formData['fullName'] ? 'field-ok' : '') ?>">
                 <label for="rn"><i class="bi bi-person"></i> Full Name *</label>
-                <input type="text" id="rn" name="fullName" placeholder="Julian Thorne" required value="<?= htmlspecialchars($formData['fullName'] ?? '') ?>"/>
+                <input type="text" id="rn" name="fullName" placeholder="Julian Thorne" required
+                  value="<?= htmlspecialchars($formData['fullName'] ?? ($_isLoggedIn ? ($_userFull['name'] ?? '') : '')) ?>"/>
                 <span class="rerr" id="e1"><?= htmlspecialchars($formErrors['fullName'] ?? '') ?></span>
               </div>
             </div>
-            <div class="col-12 col-sm-6">
+            <div class="col-12 col-sm-6" id="emailField">
               <div class="rf <?= isset($formErrors['email']) ? 'field-err' : '' ?>">
                 <label for="re"><i class="bi bi-envelope"></i> Email *</label>
-                <input type="email" id="re" name="email" placeholder="you@example.ca" required value="<?= htmlspecialchars($formData['email'] ?? '') ?>"/>
+                <input type="email" id="re" name="email" placeholder="you@example.ca" required
+                  value="<?= htmlspecialchars($formData['email'] ?? ($_isLoggedIn ? ($_userFull['email'] ?? '') : '')) ?>"/>
                 <span class="rerr" id="e2"><?= htmlspecialchars($formErrors['email'] ?? '') ?></span>
               </div>
             </div>
@@ -436,6 +479,25 @@ document.getElementById('resForm')?.addEventListener('submit',function(e){
     if(note) alert(`We noted: "${note}"\nPlease update your details and submit again.`);
   }
 });
+
+// "Booking for" toggle — show/hide name+email when logged in
+<?php if ($_isLoggedIn): ?>
+const selfName  = <?= json_encode($_userFull['name']  ?? '') ?>;
+const selfEmail = <?= json_encode($_userFull['email'] ?? '') ?>;
+document.querySelectorAll('input[name="booking_for"]').forEach(r => {
+  r.addEventListener('change', function() {
+    const isSelf = this.value === 'self';
+    if (rn) { rn.value = isSelf ? selfName  : ''; rn.readOnly = isSelf; rn.style.opacity = isSelf ? '.65' : '1'; }
+    if (re) { re.value = isSelf ? selfEmail : ''; re.readOnly = isSelf; re.style.opacity = isSelf ? '.65' : '1'; }
+  });
+});
+// Apply on load
+const initSelf = document.querySelector('input[name="booking_for"]:checked')?.value === 'self';
+if (initSelf) {
+  if (rn) { rn.readOnly = true; rn.style.opacity = '.65'; }
+  if (re) { re.readOnly = true; re.style.opacity = '.65'; }
+}
+<?php endif; ?>
 
 // Nav hide
 let lastY=0;

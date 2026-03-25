@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <form method="POST" id="adminForm">
     <div class="rf">
-      <label><i class="bi bi-person-badge"></i> Username</label>
-      <input type="text" name="username" placeholder="admin" required value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username"/>
+      <label><i class="bi bi-person-badge"></i> Username or Email</label>
+      <input type="text" name="username" placeholder="username or email" required value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username"/>
     </div>
     <div class="rf">
       <label><i class="bi bi-lock"></i> Password</label>
