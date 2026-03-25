@@ -1,37 +1,108 @@
 Options -Indexes
 DirectoryIndex index.php
 
-# Pretty error pages
+# ── Error pages ────────────────────────────────────────────
 ErrorDocument 404 /index.php
 ErrorDocument 500 /index.php
 
-# Enable output compression for faster page loads
+# ── Compression ────────────────────────────────────────────
+# mod_deflate is available on Azure App Service Linux (Apache).
+# Added font/woff2 and image/svg — common omissions.
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript text/javascript
+    AddOutputFilterByType DEFLATE \
+        text/html \
+        text/css \
+        text/plain \
+        text/xml \
+        application/javascript \
+        application/x-javascript \
+        text/javascript \
+        application/json \
+        application/xml \
+        image/svg+xml \
+        font/woff2 \
+        application/font-woff2
 </IfModule>
 
-# Browser caching for static assets
+# ── Browser caching ────────────────────────────────────────
+# mod_expires is available on Azure App Service Linux.
+# Use Cache-Control in addition to Expires for HTTP/1.1 proxies.
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 1 week"
-    ExpiresByType application/javascript "access plus 1 week"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/webp "access plus 1 month"
-    ExpiresByType image/svg+xml "access plus 1 month"
-    ExpiresByType font/woff2 "access plus 1 month"
+
+    # Versioned assets (your assets/ folder) — long TTL is safe
+    ExpiresByType text/css                  "access plus 1 year"
+    ExpiresByType application/javascript    "access plus 1 year"
+    ExpiresByType text/javascript           "access plus 1 year"
+
+    # Images
+    ExpiresByType image/jpeg                "access plus 6 months"
+    ExpiresByType image/png                 "access plus 6 months"
+    ExpiresByType image/webp                "access plus 6 months"
+    ExpiresByType image/svg+xml             "access plus 6 months"
+    ExpiresByType image/gif                 "access plus 6 months"
+    ExpiresByType image/x-icon              "access plus 6 months"
+
+    # Fonts
+    ExpiresByType font/woff2                "access plus 1 year"
+    ExpiresByType font/woff                 "access plus 1 year"
+    ExpiresByType application/font-woff2    "access plus 1 year"
+
+    # HTML — never cache; each page is dynamic
+    ExpiresByType text/html                 "access plus 0 seconds"
 </IfModule>
 
-# Block direct access to sensitive files
-<FilesMatch "\.(sql|env|log|sh|md|toml|json)$">
-    Order Allow,Deny
-    Deny from all
+# Explicit Cache-Control headers to complement mod_expires.
+# "immutable" tells modern browsers not to revalidate at all
+# during the TTL, eliminating conditional GET round-trips.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|woff2|woff)$">
+        Header append Cache-Control "public, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|ico)$">
+        Header append Cache-Control "public"
+    </FilesMatch>
+    # Remove X-Powered-By — reduces fingerprinting surface
+    Header unset X-Powered-By
+    # Tell Azure ARR (reverse proxy) not to cache PHP responses
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>
+
+# ── ETag tuning ────────────────────────────────────────────
+# Azure App Service runs multiple instances. ETags based on inode
+# numbers differ between instances and cause unnecessary cache
+# misses. Switch to size+mtime only (no inode).
+FileETag MTime Size
+
+# ── Security / access control ─────────────────────────────
+# Block direct access to files that must never be served.
+<FilesMatch "\.(sql|env|log|sh|md|toml|ini)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    # Apache 2.2 fallback (Azure App Service uses 2.4, but kept for safety)
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
 </FilesMatch>
 
-# Block config/models/controllers from direct browser access
+# ── Directory protection & routing ─────────────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^config/ - [F,L]
-    RewriteRule ^models/ - [F,L]
+
+    # Block direct HTTP access to internal folders
+    RewriteRule ^config/   - [F,L]
+    RewriteRule ^models/   - [F,L]
     RewriteRule ^controllers/ - [F,L]
+</IfModule>
+
+# ── Keep-Alive ─────────────────────────────────────────────
+# Azure App Service Linux enables KeepAlive at the server level,
+# but this reinforces it if an override is in play.
+<IfModule mod_headers.c>
+    Header set Connection keep-alive
 </IfModule>
