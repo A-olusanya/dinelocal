@@ -1,6 +1,5 @@
 <?php
-session_start();
-unset($_SESSION['welcomed']);
+// Welcome page — no session needed
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
