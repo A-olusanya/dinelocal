@@ -12,12 +12,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $id     = (int)($_POST['id'] ?? 0);
     if ($action === 'add' || $action === 'edit_save') {
+        // Handle image: uploaded file takes priority over URL
+        $imageUrl = htmlspecialchars(trim($_POST['image_url'] ?? ''));
+        if (!empty($_FILES['image_file']['name']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+            $allowed = ['image/jpeg','image/png','image/webp','image/gif'];
+            if (in_array($_FILES['image_file']['type'], $allowed)) {
+                $ext      = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
+                $filename = 'menu_' . uniqid() . '.' . strtolower($ext);
+                $dest     = __DIR__ . '/../assets/images/menu/' . $filename;
+                if (move_uploaded_file($_FILES['image_file']['tmp_name'], $dest)) {
+                    $imageUrl = 'assets/images/menu/' . $filename;
+                }
+            }
+        }
         $data = [
             'name'         => htmlspecialchars(trim($_POST['name'] ?? '')),
             'description'  => htmlspecialchars(trim($_POST['description'] ?? '')),
             'price'        => (float)($_POST['price'] ?? 0),
             'category'     => htmlspecialchars(trim($_POST['category'] ?? '')),
-            'image_url'    => htmlspecialchars(trim($_POST['image_url'] ?? '')),
+            'image_url'    => $imageUrl,
             'is_available' => isset($_POST['is_available']) ? 1 : 0,
             'is_featured'  => isset($_POST['is_featured'])  ? 1 : 0,
         ];
@@ -89,6 +102,9 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
     .alert-ok{background:rgba(28,120,14,.1);color:#27ae60;border:1px solid rgba(28,120,14,.2);border-radius:.5rem;padding:.75rem 1rem;font-size:.82rem;margin-bottom:1rem;}
     @media(max-width:767px){.sidebar{transform:translateX(-100%);transition:transform .3s;}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.mob-tog{display:flex!important;}}
     .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
+    .img-tab{background:transparent;border:1px solid rgba(59,26,8,.15);border-radius:.4rem;padding:.3rem .85rem;font-size:.76rem;font-weight:600;color:rgba(59,26,8,.55);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem;}
+    .img-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+    .img-tab:hover:not(.active){background:rgba(59,26,8,.06);}
   </style>
 </head>
 <body>
@@ -122,7 +138,7 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
     <!-- Add / Edit Form -->
     <div class="form-card">
       <h3><?= $editing ? 'Edit: ' . htmlspecialchars($editing['name']) : 'Add New Menu Item' ?></h3>
-      <form method="POST" action="manage-menu.php">
+      <form method="POST" action="manage-menu.php" enctype="multipart/form-data">
         <input type="hidden" name="action" value="<?= $editing ? 'edit_save' : 'add' ?>"/>
         <?php if ($editing): ?><input type="hidden" name="id" value="<?= $editing['id'] ?>"/><?php endif; ?>
         <div class="row g-3">
@@ -146,9 +162,46 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
             <label class="form-label">Description *</label>
             <textarea name="description" class="form-control" rows="2" required placeholder="Describe the dish..."><?= htmlspecialchars($editing['description'] ?? '') ?></textarea>
           </div>
-          <div class="col-12 col-md-8">
-            <label class="form-label">Image URL (optional)</label>
-            <input type="url" name="image_url" class="form-control" placeholder="https://..." value="<?= htmlspecialchars($editing['image_url'] ?? '') ?>"/>
+          <div class="col-12">
+            <label class="form-label">Image</label>
+            <div style="border:1px solid rgba(59,26,8,.12);border-radius:.45rem;padding:1rem;background:#faf8f5;">
+              <!-- Upload tab toggle -->
+              <div style="display:flex;gap:.5rem;margin-bottom:.85rem;">
+                <button type="button" class="img-tab active" id="tab-upload" onclick="switchTab('upload')">
+                  <i class="bi bi-upload"></i> Upload from device
+                </button>
+                <button type="button" class="img-tab" id="tab-url" onclick="switchTab('url')">
+                  <i class="bi bi-link-45deg"></i> Paste URL
+                </button>
+              </div>
+              <!-- Upload panel -->
+              <div id="panel-upload">
+                <input type="file" name="image_file" id="image_file" accept="image/*" class="form-control"
+                  style="font-size:.82rem;" onchange="previewImg(this)"/>
+                <div id="img-preview-wrap" style="margin-top:.75rem;display:none;">
+                  <img id="img-preview" src="" alt="Preview"
+                    style="max-height:140px;border-radius:.5rem;border:1px solid rgba(59,26,8,.1);object-fit:cover;"/>
+                  <button type="button" onclick="clearFile()" style="display:block;margin-top:.35rem;font-size:.72rem;color:#c0392b;background:none;border:none;cursor:pointer;">
+                    <i class="bi bi-x-circle"></i> Remove
+                  </button>
+                </div>
+                <?php if (!empty($editing['image_url']) && !str_starts_with($editing['image_url'],'http')): ?>
+                <p style="font-size:.72rem;color:rgba(59,26,8,.5);margin-top:.5rem">
+                  Current: <strong><?= htmlspecialchars($editing['image_url']) ?></strong>
+                  — upload a new file to replace it, or leave empty to keep.
+                </p>
+                <?php endif; ?>
+              </div>
+              <!-- URL panel -->
+              <div id="panel-url" style="display:none;">
+                <input type="url" name="image_url" id="image_url" class="form-control" placeholder="https://images.unsplash.com/..."
+                  value="<?= htmlspecialchars($editing['image_url'] ?? '') ?>"
+                  style="font-size:.84rem;"/>
+                <p style="font-size:.7rem;color:rgba(59,26,8,.4);margin-top:.4rem">
+                  Paste any public image URL (Unsplash, etc.)
+                </p>
+              </div>
+            </div>
           </div>
           <div class="col-12 col-md-4 d-flex align-items-end gap-3 pb-1">
             <label class="d-flex align-items-center gap-2" style="font-size:.82rem;font-weight:500;cursor:pointer">
@@ -219,6 +272,34 @@ document.getElementById('menuSearch')?.addEventListener('input', function() {
     row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 });
+</script>
+<script>
+function switchTab(tab) {
+  document.getElementById('panel-upload').style.display = tab === 'upload' ? '' : 'none';
+  document.getElementById('panel-url').style.display    = tab === 'url'    ? '' : 'none';
+  document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+  document.getElementById('tab-url').classList.toggle('active',    tab === 'url');
+  // Clear the inactive input so it doesn't interfere
+  if (tab === 'upload') document.getElementById('image_url').value = '';
+  else clearFile();
+}
+function previewImg(input) {
+  const wrap = document.getElementById('img-preview-wrap');
+  const prev = document.getElementById('img-preview');
+  if (input.files && input.files[0]) {
+    prev.src = URL.createObjectURL(input.files[0]);
+    wrap.style.display = '';
+  }
+}
+function clearFile() {
+  document.getElementById('image_file').value = '';
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-preview').src = '';
+}
+// On edit: if current image is a URL, default to URL tab
+<?php if (!empty($editing['image_url']) && str_starts_with($editing['image_url'], 'http')): ?>
+switchTab('url');
+<?php endif; ?>
 </script>
 </body>
 </html>
