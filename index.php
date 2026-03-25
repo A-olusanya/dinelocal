@@ -6,7 +6,7 @@ if (isset($_GET['enter'])) {
 }
 // Redirect new visitors to the welcome page (once per session)
 if (empty($_SESSION['welcomed'])) {
-    header('Location: welcome.php');
+    header('Location: /welcome.php');
     exit;
 }
 ?>
