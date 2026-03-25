@@ -1,15 +1,4 @@
 <?php
-// Mark welcomed when returning from the welcome animation
-if (isset($_GET['enter'])) {
-    setcookie('welcomed', '1', 0, '/');
-    header('Location: /');
-    exit;
-}
-// Redirect new visitors to the welcome page (once per session)
-if (empty($_COOKIE['welcomed'])) {
-    header('Location: /welcome.php');
-    exit;
-}
 session_start();
 ?>
 <!DOCTYPE html>
