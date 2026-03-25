@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$user) {
             $error = 'Incorrect email or password. Please try again.';
         } else {
+            session_regenerate_id(true);
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             if ($remember) {
@@ -33,7 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: change-password-required.php');
                 exit;
             }
-            $redirect = $_GET['redirect'] ?? 'dashboard.php';
+            $allowed = ['dashboard.php','menu.php','reservations.php','about.php'];
+            $redirect = in_array($_GET['redirect'] ?? '', $allowed) ? $_GET['redirect'] : 'dashboard.php';
             header('Location: ' . $redirect);
             exit;
         }
