@@ -1,3 +1,4 @@
 .DS_Store
 assets/.DS_Store
 *.log
+railway_import.sql
