@@ -1,3 +1,26 @@
+<?php
+session_start();
+if (!empty($_SESSION['admin_id'])) { header('Location: index.php'); exit; }
+
+require_once '../config/db.php';
+require_once '../controllers/AdminController.php';
+
+$ctrl  = new AdminController();
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = htmlspecialchars(trim($_POST['username'] ?? ''));
+    $password = $_POST['password'] ?? '';
+    if (!$username || !$password) {
+        $error = 'Please enter your username and password.';
+    } elseif (!$ctrl->login($username, $password)) {
+        $error = 'Invalid username or password.';
+    } else {
+        header('Location: index.php');
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,31 +59,6 @@
   </style>
 </head>
 <body>
-<?php
-session_start();
-// Already logged in as admin
-if (!empty($_SESSION['admin_id'])) { header('Location: index.php'); exit; }
-
-require_once '../config/db.php';
-require_once '../controllers/AdminController.php';
-
-$ctrl  = new AdminController();
-$error = '';
-if (isset($_GET['logout'])) $error = ''; // cleared
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = htmlspecialchars(trim($_POST['username'] ?? ''));
-    $password = $_POST['password'] ?? '';
-    if (!$username || !$password) {
-        $error = 'Please enter your username and password.';
-    } elseif (!$ctrl->login($username, $password)) {
-        $error = 'Invalid username or password.';
-    } else {
-        header('Location: index.php');
-        exit;
-    }
-}
-?>
 
 <div class="login-card">
   <div class="card-logo">
