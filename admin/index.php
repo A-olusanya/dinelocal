@@ -96,12 +96,23 @@ $totalItems = count($allMenu);
       .mob-tog{display:flex!important;}
     }
     .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
+    .sidebar-close{display:none;position:absolute;top:.85rem;right:.85rem;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.3rem;cursor:pointer;line-height:1;}
+    .sidebar-close:hover{color:var(--cream);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;}
+    @media(max-width:767px){
+      .sidebar-close{display:flex;align-items:center;justify-content:center;}
+      .sidebar-overlay.show{display:block;}
+    }
   </style>
 </head>
 <body>
 
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
   <div class="sidebar-logo">
     <h2>DineLocal</h2>
     <p>ADMIN PANEL</p>
@@ -126,7 +137,7 @@ $totalItems = count($allMenu);
 <div class="main">
   <div class="topbar">
     <div class="d-flex align-items-center gap-3">
-      <button class="mob-tog" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <button class="mob-tog" onclick="openSidebar()">
         <i class="bi bi-list"></i>
       </button>
       <h1>Dashboard</h1>
@@ -278,5 +289,15 @@ $totalItems = count($allMenu);
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+</script>
 </body>
 </html>

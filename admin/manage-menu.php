@@ -105,6 +105,10 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
     .alert-ok{background:rgba(28,120,14,.1);color:#27ae60;border:1px solid rgba(28,120,14,.2);border-radius:.5rem;padding:.75rem 1rem;font-size:.82rem;margin-bottom:1rem;}
     @media(max-width:767px){.sidebar{transform:translateX(-100%);transition:transform .3s;}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.mob-tog{display:flex!important;}}
     .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
+    .sidebar-close{display:none;position:absolute;top:.85rem;right:.85rem;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.3rem;cursor:pointer;line-height:1;}
+    .sidebar-close:hover{color:var(--cream);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;}
+    @media(max-width:767px){.sidebar-close{display:flex;align-items:center;justify-content:center;}.sidebar-overlay.show{display:block;}}
     .img-tab{background:transparent;border:1px solid rgba(59,26,8,.15);border-radius:.4rem;padding:.3rem .85rem;font-size:.76rem;font-weight:600;color:rgba(59,26,8,.55);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem;}
     .img-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;}
     .img-tab:hover:not(.active){background:rgba(59,26,8,.06);}
@@ -113,6 +117,7 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
 <body>
 
 <aside class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
   <div class="sidebar-logo"><h2>DineLocal</h2><p>ADMIN PANEL</p></div>
   <nav class="sidebar-nav">
     <a href="index.php" class="nav-item"><i class="bi bi-grid"></i> Dashboard</a>
@@ -133,7 +138,7 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
 <div class="main">
   <div class="topbar">
     <div class="d-flex align-items-center gap-3">
-      <button class="mob-tog" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
+      <button class="mob-tog" onclick="openSidebar()"><i class="bi bi-list"></i></button>
       <h1><?= $editing ? 'Edit Menu Item' : 'Manage Menu' ?></h1>
     </div>
     <span class="topbar-date"><?= count($items) ?> items</span>
@@ -309,6 +314,16 @@ function clearFile() {
 <?php if (!empty($editing['image_url']) && str_starts_with($editing['image_url'], 'http')): ?>
 switchTab('url');
 <?php endif; ?>
+</script>
+<script>
+function openSidebar(){
+  document.getElementById("sidebar").classList.add("open");
+  document.getElementById("sidebarOverlay").classList.add("show");
+}
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
+}
 </script>
 </body>
 </html>

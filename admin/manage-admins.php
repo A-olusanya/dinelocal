@@ -321,5 +321,15 @@ document.getElementById('pwModal').addEventListener('click', function(e) {
   if (e.target === this) closePwModal();
 });
 </script>
+<script>
+function openSidebar(){
+  document.getElementById("sidebar").classList.add("open");
+  document.getElementById("sidebarOverlay").classList.add("show");
+}
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
+}
+</script>
 </body>
 </html>

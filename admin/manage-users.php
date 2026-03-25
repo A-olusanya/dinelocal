@@ -76,6 +76,7 @@ $allUsers      = $model->getAll();
 <body>
 
 <aside class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
   <div class="sidebar-logo"><h2>DineLocal</h2><p>ADMIN PANEL</p></div>
   <nav class="sidebar-nav">
     <a href="index.php"                class="nav-item"><i class="bi bi-grid"></i> Dashboard</a>
@@ -188,5 +189,15 @@ $allUsers      = $model->getAll();
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openSidebar(){
+  document.getElementById("sidebar").classList.add("open");
+  document.getElementById("sidebarOverlay").classList.add("show");
+}
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
+}
+</script>
 </body>
 </html>
