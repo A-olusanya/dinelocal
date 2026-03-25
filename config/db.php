@@ -2,18 +2,16 @@
 // ============================================
 // DINELOCAL · config/db.php
 // ITC 6355 | Arjun & Ayomide
-// NOTE: Use 127.0.0.1 NOT localhost on Mac
-// localhost uses a Unix socket that may not
-// exist; 127.0.0.1 forces TCP connection
+// Azure App Service reads env vars from
+// Configuration > Application Settings.
+// Falls back to local dev values.
 // ============================================
 
-// Railway injects MYSQL_* env vars automatically when MySQL plugin is added.
-// Falls back to local dev values when running on localhost.
-define('DB_HOST',    getenv('MYSQL_HOST')     ?: getenv('MYSQLHOST')     ?: '127.0.0.1');
-define('DB_PORT',    getenv('MYSQL_PORT')     ?: getenv('MYSQLPORT')     ?: '3306');
-define('DB_NAME',    getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: 'dinelocal');
-define('DB_USER',    getenv('MYSQL_USER')     ?: getenv('MYSQLUSER')     ?: 'root');
-define('DB_PASS',    getenv('MYSQL_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: '');
+define('DB_HOST',    getenv('DB_HOST') ?: '127.0.0.1');
+define('DB_PORT',    getenv('DB_PORT') ?: '3306');
+define('DB_NAME',    getenv('DB_NAME') ?: 'dinelocal');
+define('DB_USER',    getenv('DB_USER') ?: 'root');
+define('DB_PASS',    getenv('DB_PASS') ?: '');
 define('DB_CHARSET', 'utf8mb4');
 
 function getDB(): PDO {
