@@ -1,5 +1,12 @@
 <?php
 session_start();
+if (isset($_GET['enter'])) {
+    $_SESSION['welcomed'] = true;
+}
+if (empty($_SESSION['welcomed'])) {
+    header('Location: /welcome.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
