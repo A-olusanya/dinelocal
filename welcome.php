@@ -149,12 +149,8 @@ unset($_SESSION['welcomed']);
     @media(max-width:680px){
       #scene{width:360px;height:220px;transform:translate(-50%,-50%);}
       #plate-glow{width:240px;height:240px;}
-      /* hide mid plates, shrink others */
-      #p3,#p4{display:none;}
-      #p1{width:115px;height:115px;left:0%;top:5%;}
-      #p2{width:125px;height:125px;right:0%;top:4%;}
-      #p5{width:118px;height:118px;left:0%;bottom:5%;}
-      #p6{width:115px;height:115px;right:0%;bottom:6%;}
+      /* hide all corner food photos on mobile */
+      #p1,#p2,#p3,#p4,#p5,#p6{display:none;}
       #brand h1{font-size:2.2rem;}
       #cta-block h2{font-size:2rem;}
       #cta-btn{padding:.7rem 1.8rem;font-size:.8rem;}
@@ -163,7 +159,6 @@ unset($_SESSION['welcomed']);
     /* SMALL mobile (≤ 400px) */
     @media(max-width:400px){
       #scene{width:280px;height:180px;}
-      #p1,#p2,#p5,#p6{width:90px;height:90px;}
       #brand h1{font-size:1.8rem;}
     }
   </style>
