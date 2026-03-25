@@ -88,19 +88,18 @@ $totalItems = count($allMenu);
     .btn-confirm:hover{background:#27ae60;color:#fff;}
     .btn-cancel{background:rgba(192,57,43,.1);color:#c0392b;}
     .btn-cancel:hover{background:#c0392b;color:#fff;}
-    /* Mobile sidebar toggle */
+    /* Mobile sidebar */
+    .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
+    .sidebar-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
+    .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.4);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-top:.15rem;}
+    .sidebar-close:hover{color:var(--cream);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;}
     @media(max-width:767px){
       .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
       .sidebar.open{transform:translateX(0);}
       .main{margin-left:0;}
       .mob-tog{display:flex!important;}
-    }
-    .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
-    .sidebar-close{display:none;position:absolute;top:.85rem;right:.85rem;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.3rem;cursor:pointer;line-height:1;}
-    .sidebar-close:hover{color:var(--cream);}
-    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;}
-    @media(max-width:767px){
-      .sidebar-close{display:flex;align-items:center;justify-content:center;}
+      .sidebar-close{display:block;}
       .sidebar-overlay.show{display:block;}
     }
   </style>
@@ -112,18 +111,17 @@ $totalItems = count($allMenu);
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-  <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
-  <div class="sidebar-logo">
-    <h2>DineLocal</h2>
-    <p>ADMIN PANEL</p>
+  <div class="sidebar-header">
+    <div><h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--cream);margin:0">DineLocal</h2><p style="font-size:.62rem;color:rgba(251,240,220,.4);letter-spacing:.12em;margin:0">ADMIN PANEL</p></div>
+    <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.php" class="nav-item active"><i class="bi bi-grid"></i> Dashboard</a>
-    <a href="manage-reservations.php" class="nav-item"><i class="bi bi-calendar2-check"></i> Reservations</a>
-    <a href="manage-menu.php" class="nav-item"><i class="bi bi-card-list"></i> Menu Items</a>
-    <a href="manage-users.php" class="nav-item"><i class="bi bi-people"></i> Users</a>
+    <a href="index.php" class="nav-item active" onclick="closeSidebar()"><i class="bi bi-grid"></i> Dashboard</a>
+    <a href="manage-reservations.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-calendar2-check"></i> Reservations</a>
+    <a href="manage-menu.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-card-list"></i> Menu Items</a>
+    <a href="manage-users.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-people"></i> Users</a>
     <?php if (AdminController::hasRole('super_admin')): ?>
-    <a href="manage-admins.php" class="nav-item"><i class="bi bi-shield-lock"></i> Admins</a>
+    <a href="manage-admins.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-shield-lock"></i> Admins</a>
     <?php endif; ?>
     <a href="../index.php" class="nav-item" target="_blank" rel="noopener"><i class="bi bi-arrow-left-circle"></i> View Site</a>
   </nav>

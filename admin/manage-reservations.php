@@ -88,12 +88,12 @@ $counts = $model->countByStatus();
     <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.php" class="nav-item"><i class="bi bi-grid"></i> Dashboard</a>
-    <a href="manage-reservations.php" class="nav-item active"><i class="bi bi-calendar2-check"></i> Reservations</a>
-    <a href="manage-menu.php" class="nav-item"><i class="bi bi-card-list"></i> Menu Items</a>
-    <a href="manage-users.php" class="nav-item"><i class="bi bi-people"></i> Users</a>
+    <a href="index.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-grid"></i> Dashboard</a>
+    <a href="manage-reservations.php" class="nav-item active" onclick="closeSidebar()"><i class="bi bi-calendar2-check"></i> Reservations</a>
+    <a href="manage-menu.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-card-list"></i> Menu Items</a>
+    <a href="manage-users.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-people"></i> Users</a>
     <?php if (AdminController::hasRole('super_admin')): ?>
-    <a href="manage-admins.php" class="nav-item"><i class="bi bi-shield-lock"></i> Admins</a>
+    <a href="manage-admins.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-shield-lock"></i> Admins</a>
     <?php endif; ?>
     <a href="../index.php" class="nav-item" target="_blank" rel="noopener"><i class="bi bi-arrow-left-circle"></i> View Site</a>
   </nav>

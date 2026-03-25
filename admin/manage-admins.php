@@ -136,19 +136,39 @@ $roleLabels = [
     .modal-box h4{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--brown);margin-bottom:1rem;}
     .pw-input{background:#F3E4C6;border:none;border-radius:.45rem;padding:.65rem .9rem;font-size:.875rem;color:var(--brown);outline:none;width:100%;transition:background .2s,box-shadow .2s;}
     .pw-input:focus{background:#fff9f3;box-shadow:0 0 0 2px rgba(196,85,26,.28);}
-    @media(max-width:767px){.main{margin-left:0;}}
+    .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
+    .sidebar-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
+    .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.4);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-top:.15rem;}
+    .sidebar-close:hover{color:var(--cream);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;}
+    .topbar-date{font-size:.78rem;color:rgba(59,26,8,.5);}
+    @media(max-width:767px){
+      .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
+      .sidebar.open{transform:translateX(0);}
+      .main{margin-left:0;}
+      .mob-tog{display:flex!important;}
+      .sidebar-close{display:block;}
+      .sidebar-overlay.show{display:block;}
+      .topbar{padding:.75rem 1rem;}
+      .topbar h1{font-size:1.2rem;}
+      .topbar-date{display:none;}
+    }
   </style>
 </head>
 <body>
 
-<aside class="sidebar">
-  <div class="sidebar-logo"><h2>DineLocal</h2><p>ADMIN PANEL</p></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div><h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--cream);margin:0">DineLocal</h2><p style="font-size:.62rem;color:rgba(251,240,220,.4);letter-spacing:.12em;margin:0">ADMIN PANEL</p></div>
+    <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+  </div>
   <nav class="sidebar-nav">
-    <a href="index.php"               class="nav-item"><i class="bi bi-grid"></i> Dashboard</a>
-    <a href="manage-reservations.php" class="nav-item"><i class="bi bi-calendar2-check"></i> Reservations</a>
-    <a href="manage-menu.php"         class="nav-item"><i class="bi bi-card-list"></i> Menu Items</a>
-    <a href="manage-users.php"        class="nav-item"><i class="bi bi-people"></i> Users</a>
-    <a href="manage-admins.php"       class="nav-item active"><i class="bi bi-shield-lock"></i> Admins</a>
+    <a href="index.php"               class="nav-item" onclick="closeSidebar()"><i class="bi bi-grid"></i> Dashboard</a>
+    <a href="manage-reservations.php" class="nav-item" onclick="closeSidebar()"><i class="bi bi-calendar2-check"></i> Reservations</a>
+    <a href="manage-menu.php"         class="nav-item" onclick="closeSidebar()"><i class="bi bi-card-list"></i> Menu Items</a>
+    <a href="manage-users.php"        class="nav-item" onclick="closeSidebar()"><i class="bi bi-people"></i> Users</a>
+    <a href="manage-admins.php"       class="nav-item active" onclick="closeSidebar()"><i class="bi bi-shield-lock"></i> Admins</a>
     <a href="../index.php"            class="nav-item" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
   </nav>
   <div class="sidebar-footer">
@@ -161,11 +181,11 @@ $roleLabels = [
 
 <div class="main">
   <div class="topbar">
-    <h1>Manage Admins</h1>
-    <span style="font-size:.75rem;color:rgba(59,26,8,.45)">
-      <i class="bi bi-shield-check me-1" style="color:var(--orange)"></i>
-      <?= htmlspecialchars($_SESSION['admin_username']) ?> · Super Admin
-    </span>
+    <div class="d-flex align-items-center gap-3">
+      <button class="mob-tog" onclick="openSidebar()"><i class="bi bi-list"></i></button>
+      <h1>Manage Admins</h1>
+    </div>
+    <span class="topbar-date"><i class="bi bi-shield-check me-1" style="color:var(--orange)"></i><?= htmlspecialchars($_SESSION['admin_username']) ?></span>
   </div>
 
   <div class="content">
