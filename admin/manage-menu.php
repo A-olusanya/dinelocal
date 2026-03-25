@@ -14,17 +14,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id     = (int)($_POST['id'] ?? 0);
     if ($action === 'add' || $action === 'edit_save') {
         // Handle image: uploaded file takes priority over URL
-        $imageUrl = htmlspecialchars(trim($_POST['image_url'] ?? ''));
-        if (!empty($_FILES['image_file']['name']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
-            $allowed = ['image/jpeg','image/png','image/webp','image/gif'];
-            if (in_array($_FILES['image_file']['type'], $allowed)) {
-                $ext      = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
-                $filename = 'menu_' . uniqid() . '.' . strtolower($ext);
-                $dest     = __DIR__ . '/../assets/images/menu/' . $filename;
-                if (move_uploaded_file($_FILES['image_file']['tmp_name'], $dest)) {
-                    $imageUrl = 'assets/images/menu/' . $filename;
+        $imageUrl    = htmlspecialchars(trim($_POST['image_url'] ?? ''));
+        $uploadError = '';
+        if (!empty($_FILES['image_file']['name'])) {
+            $uploadCode = $_FILES['image_file']['error'];
+            if ($uploadCode === UPLOAD_ERR_INI_SIZE || $uploadCode === UPLOAD_ERR_FORM_SIZE) {
+                $uploadError = 'Image too large — maximum allowed size is 15 MB. Please compress the photo and try again, or use the URL option.';
+            } elseif ($uploadCode === UPLOAD_ERR_OK) {
+                $allowed = ['image/jpeg','image/png','image/webp','image/gif'];
+                if (in_array($_FILES['image_file']['type'], $allowed)) {
+                    $ext      = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
+                    $filename = 'menu_' . uniqid() . '.' . strtolower($ext);
+                    $dest     = __DIR__ . '/../assets/images/menu/' . $filename;
+                    if (move_uploaded_file($_FILES['image_file']['tmp_name'], $dest)) {
+                        $imageUrl = 'assets/images/menu/' . $filename;
+                    } else {
+                        $uploadError = 'Upload failed — could not save the file. Please try again.';
+                    }
+                } else {
+                    $uploadError = 'Unsupported file type. Please upload a JPEG, PNG, WebP, or GIF image.';
                 }
             }
+        }
+        if ($uploadError) {
+            $message = $uploadError;
+            // Fall through — item is still saved (without image) and error shown
         }
         $data = [
             'name'         => htmlspecialchars(trim($_POST['name'] ?? '')),
@@ -35,9 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'is_available' => isset($_POST['is_available']) ? 1 : 0,
             'is_featured'  => isset($_POST['is_featured'])  ? 1 : 0,
         ];
-        if ($action === 'add')       { $model->create($data); $message = 'Menu item added successfully!'; }
-        if ($action === 'edit_save') { $model->update($id, $data); $message = 'Menu item updated successfully!'; }
-        header('Location: manage-menu.php?msg=' . urlencode($message));
+        if ($action === 'add')       { $model->create($data); if (!$uploadError) $message = 'Menu item added successfully!'; }
+        if ($action === 'edit_save') { $model->update($id, $data); if (!$uploadError) $message = 'Menu item updated successfully!'; }
+        $qs = 'msg=' . urlencode($message) . ($uploadError ? '&err=1' : '');
+        header('Location: manage-menu.php?' . $qs);
         exit;
     }
     if ($action === 'toggle') { $model->toggleAvailability($id); header('Location: manage-menu.php'); exit; }
@@ -46,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if (isset($_GET['edit'])) { $editing = $model->getById((int)$_GET['edit']); }
 $message    = $_GET['msg'] ?? '';
+$msgIsError = !empty($_GET['err']);
 $items      = $model->getAll();
 $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
 ?>
@@ -100,6 +116,7 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
     .btn-del{background:rgba(192,57,43,.1);color:#c0392b;}
     .btn-del:hover{background:#c0392b;color:#fff;}
     .alert-ok{background:rgba(28,120,14,.1);color:#27ae60;border:1px solid rgba(28,120,14,.2);border-radius:.5rem;padding:.75rem 1rem;font-size:.82rem;margin-bottom:1rem;}
+    .alert-err{background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.2);border-radius:.5rem;padding:.75rem 1rem;font-size:.82rem;margin-bottom:1rem;}
     .mob-tog{display:none;background:none;border:none;font-size:1.4rem;color:var(--brown);cursor:pointer;padding:.25rem;}
     .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
     .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;}
@@ -154,7 +171,9 @@ $categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
 
   <div class="content">
     <?php if ($message): ?>
-    <div class="alert-ok"><i class="bi bi-check-circle-fill me-2"></i><?= htmlspecialchars($message) ?></div>
+    <div class="<?= $msgIsError ? 'alert-err' : 'alert-ok' ?>">
+      <i class="bi <?= $msgIsError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill' ?> me-2"></i><?= htmlspecialchars($message) ?>
+    </div>
     <?php endif; ?>
 
     <!-- Add / Edit Form -->

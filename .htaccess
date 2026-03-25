@@ -100,6 +100,15 @@ FileETag MTime Size
     RewriteRule ^controllers/ - [F,L]
 </IfModule>
 
+# ── PHP upload limits ──────────────────────────────────────
+# Phone photos can easily exceed the default 2MB limit.
+<IfModule mod_php.c>
+    php_value upload_max_filesize 15M
+    php_value post_max_size       20M
+</IfModule>
+# For PHP-FPM (used on Azure App Service Linux), set via php.ini or
+# Azure App Settings: PHP_INI_SCAN_DIR / user.ini file below.
+
 # ── Keep-Alive ─────────────────────────────────────────────
 # Azure App Service Linux enables KeepAlive at the server level,
 # but this reinforces it if an override is in play.
