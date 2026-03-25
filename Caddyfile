@@ -1,10 +1,14 @@
 {
 	admin off
+	persist_config off
 	auto_https off
 }
 
-:{$PORT} {
+:{$PORT:80} {
 	root * /app
-	encode gzip
+	encode zstd br gzip
+	file_server {
+		hide .git .env*
+	}
 	php_server
 }
