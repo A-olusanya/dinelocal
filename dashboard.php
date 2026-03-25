@@ -126,15 +126,28 @@ $tab     = $_GET['tab'] ?? 'reservations';
     .empty-state i{font-size:2.5rem;color:rgba(59,26,8,.2);display:block;margin-bottom:.75rem;}
     .empty-state p{font-size:.88rem;color:rgba(59,26,8,.45);}
     /* Mobile sidebar toggle */
-    .mob-dash-tog{display:none;background:var(--dark);color:var(--cream);border:none;padding:.5rem 1rem;border-radius:.5rem;font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:1rem;}
-    @media(max-width:768px){.dash-side{display:none;}.dash-side.open{display:flex;}.mob-dash-tog{display:block;}}
+    .mob-dash-tog{display:none;background:var(--orange);color:#fff;border:none;padding:.55rem 1.1rem;border-radius:9999px;font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:1.25rem;box-shadow:0 3px 12px rgba(196,85,26,.35);}
+    .dash-side-close{display:none;position:absolute;top:.85rem;right:.85rem;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.2rem;cursor:pointer;}
+    .dash-side-close:hover{color:var(--cream);}
+    .dash-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:98;}
+    @media(max-width:768px){
+      .dash-side{display:none;position:fixed;top:0;left:0;bottom:0;width:280px;z-index:99;overflow-y:auto;}
+      .dash-side.open{display:flex;}
+      .dash-overlay.show{display:block;}
+      .mob-dash-tog{display:inline-flex;align-items:center;gap:.4rem;}
+      .dash-side-close{display:block;}
+    }
   </style>
 </head>
 <body>
 
+<!-- Overlay -->
+<div class="dash-overlay" id="dashOverlay" onclick="closeDashSide()"></div>
+
 <div class="dash-wrap">
   <!-- Sidebar -->
-  <aside class="dash-side" id="dashSide">
+  <aside class="dash-side" id="dashSide" style="position:relative;">
+    <button class="dash-side-close" onclick="closeDashSide()"><i class="bi bi-x-lg"></i></button>
     <div class="dash-logo">DineLocal</div>
     <div class="dash-logo-sub">MY ACCOUNT</div>
     <div class="dash-avatar"><?= strtoupper(substr($user['name'], 0, 1)) ?></div>
@@ -155,8 +168,8 @@ $tab     = $_GET['tab'] ?? 'reservations';
 
   <!-- Main -->
   <main class="dash-main">
-    <button class="mob-dash-tog" onclick="document.getElementById('dashSide').classList.toggle('open')">
-      <i class="bi bi-list me-1"></i> Menu
+    <button class="mob-dash-tog" onclick="openDashSide()">
+      <i class="bi bi-list"></i> Menu
     </button>
 
     <?php if ($welcome): ?>
@@ -179,13 +192,13 @@ $tab     = $_GET['tab'] ?? 'reservations';
 
     <!-- Stats row -->
     <div class="row g-3 mb-4">
-      <div class="col-6 col-md-4">
+      <div class="col-12 col-md-4">
         <div class="stat-c"><div class="stat-ic sic-o"><i class="bi bi-calendar2"></i></div><div><div class="stat-v"><?= $total ?></div><div class="stat-l">TOTAL BOOKINGS</div></div></div>
       </div>
-      <div class="col-6 col-md-4">
+      <div class="col-12 col-md-4">
         <div class="stat-c"><div class="stat-ic sic-g"><i class="bi bi-check-circle"></i></div><div><div class="stat-v"><?= $confirmed ?></div><div class="stat-l">CONFIRMED</div></div></div>
       </div>
-      <div class="col-6 col-md-4">
+      <div class="col-12 col-md-4">
         <div class="stat-c"><div class="stat-ic sic-b"><i class="bi bi-calendar-event"></i></div><div><div class="stat-v"><?= $upcoming ?></div><div class="stat-l">UPCOMING</div></div></div>
       </div>
     </div>
@@ -292,6 +305,14 @@ $tab     = $_GET['tab'] ?? 'reservations';
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+function openDashSide(){
+  document.getElementById('dashSide').classList.add('open');
+  document.getElementById('dashOverlay').classList.add('show');
+}
+function closeDashSide(){
+  document.getElementById('dashSide').classList.remove('open');
+  document.getElementById('dashOverlay').classList.remove('show');
+}
 document.getElementById('pwForm')?.addEventListener('submit', function(e) {
   const nw = document.getElementById('npw').value;
   const cf = document.getElementById('cpw').value;

@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-  /* CURSOR */
+  /* CURSOR — fork */
   const c = document.getElementById('cursor');
   let mx=0,my=0;
-  document.addEventListener('mousemove',e=>{ mx=e.clientX;my=e.clientY; if(c)c.style.transform=`translate(${mx-4}px,${my-4}px)`; });
+  document.addEventListener('mousemove',e=>{ mx=e.clientX;my=e.clientY; if(c)c.style.transform=`translate(${mx-11}px,${my-2}px)`; });
   document.querySelectorAll('a,button,input,select,textarea').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{ if(c){c.style.width='16px';c.style.height='16px';c.style.background='#E8A83E';} });
-    el.addEventListener('mouseleave',()=>{ if(c){c.style.width='8px';c.style.height='8px';c.style.background='#C4551A';} });
+    el.addEventListener('mouseenter',()=>{ if(c) c.classList.add('hovered'); });
+    el.addEventListener('mouseleave',()=>{ if(c) c.classList.remove('hovered'); });
   });
 
   /* PROGRESS */

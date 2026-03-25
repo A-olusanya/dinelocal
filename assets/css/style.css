@@ -9,8 +9,17 @@ html { overflow-x: hidden; scroll-behavior: smooth; }
 body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; background: #0d0702; cursor: none; -webkit-font-smoothing: antialiased; }
 .inset-0 { top:0; left:0; right:0; bottom:0; }
 
-/* ── CURSOR ── */
-#cursor { width:8px; height:8px; background:var(--dl-orange); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .15s,background .15s; }
+/* ── CURSOR — fork shape ── */
+#cursor {
+  width:22px; height:44px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 44'%3E%3Crect x='3.5' y='1' width='2.5' height='12' rx='1.25' fill='%23C4551A'/%3E%3Crect x='9.75' y='1' width='2.5' height='12' rx='1.25' fill='%23C4551A'/%3E%3Crect x='16' y='1' width='2.5' height='12' rx='1.25' fill='%23C4551A'/%3E%3Cpath d='M4.75 13 Q11 18.5 17.25 13' fill='%23C4551A'/%3E%3Crect x='9.75' y='17' width='2.5' height='26' rx='1.25' fill='%23C4551A'/%3E%3C/svg%3E") center/contain no-repeat;
+  border-radius:0;
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+  transition: filter .15s;
+}
+#cursor.hovered {
+  filter: sepia(1) saturate(4) hue-rotate(28deg) brightness(1.3);
+}
 @media (hover:none) { #cursor { display:none; } }
 
 /* ── PROGRESS BAR ── */
@@ -24,7 +33,7 @@ body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; backgrou
 ══════════════════════════════════════ */
 #main-nav {
   background: rgba(13,7,2,.9) !important;
-  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(232,168,62,.1);
   padding: .65rem 0;
   transition: transform .35s ease;
@@ -74,10 +83,10 @@ body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; backgrou
 
 .btn-fill { background: linear-gradient(135deg, var(--dl-orange), var(--dl-orange-d)); color: #fff; padding: .85rem 2rem; border-radius: 9999px; font-size: .875rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: .45rem; box-shadow: 0 4px 18px rgba(196,85,26,.5); transition: transform .2s, box-shadow .2s; }
 .btn-fill:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 8px 26px rgba(196,85,26,.65); }
-.btn-line { background: transparent; color: var(--dl-cream); border: 1.5px solid rgba(251,240,220,.36); padding: .85rem 2rem; border-radius: 9999px; font-size: .875rem; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: .45rem; backdrop-filter: blur(8px); transition: all .2s; }
+.btn-line { background: transparent; color: var(--dl-cream); border: 1.5px solid rgba(251,240,220,.36); padding: .85rem 2rem; border-radius: 9999px; font-size: .875rem; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: .45rem; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: all .2s; }
 .btn-line:hover { color: var(--dl-cream); border-color: rgba(251,240,220,.8); background: rgba(251,240,220,.08); transform: translateY(-2px); }
 
-.hero-bar { background: rgba(13,7,2,.75); backdrop-filter: blur(12px); border-top: 1px solid rgba(232,168,62,.1); position: relative; z-index: 2; }
+.hero-bar { background: rgba(13,7,2,.75); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid rgba(232,168,62,.1); position: relative; z-index: 2; }
 .hbar-item { font-size: .72rem; font-weight: 500; color: rgba(251,240,220,.58); }
 .hbar-item i { color: var(--dl-gold); }
 .hbar-div { width: 1px; height: 14px; background: rgba(251,240,220,.12); display: inline-block; }
@@ -138,7 +147,7 @@ body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; backgrou
 
 /* Mobile: stack vertically */
 @media (max-width: 767px) {
-  .showcase-panel { grid-template-columns: 1fr; min-height: auto; }
+  .showcase-panel { grid-template-columns: 1fr; min-height: unset; }
   .showcase-panel.sp-reverse { direction: ltr; }
   .sp-photo { min-height: 55vw; max-height: 320px; }
   .sp-content { padding: 2.5rem 1.5rem; }
