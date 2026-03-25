@@ -222,7 +222,11 @@ $_initials   = $_isLoggedIn ? strtoupper(substr($_userName, 0, 1)) : '';
   </div>
 </footer>
 
+<div id="cursor"></div>
+<div id="progress-bar"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/main.js"></script>
 <script>
 // JS form validation (rubric) - inline
 function filterMenu(cat, btn) {

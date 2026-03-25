@@ -423,7 +423,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 </footer>
 
+<div id="cursor"></div>
+<div id="progress-bar"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/main.js"></script>
 <script>
 // ── JS Validation (rubric: alert, confirm, prompt) ──
 const $ = id => document.getElementById(id);
