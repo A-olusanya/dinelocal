@@ -52,10 +52,17 @@ $totalItems = count($allMenu);
     .sidebar-footer a:hover{color:var(--cream);}
     /* Main */
     .main{margin-left:240px;flex:1;padding:0;}
-    .topbar{background:#fff;border-bottom:1px solid rgba(59,26,8,.08);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .topbar{background:#fff;border-bottom:1px solid rgba(59,26,8,.08);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
     .topbar h1{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--brown);}
-    .topbar-right{display:flex;align-items:center;gap:1rem;}
+    .topbar-right{display:flex;align-items:center;gap:.75rem;}
     .admin-badge{background:rgba(196,85,26,.1);color:var(--orange);padding:.32rem .85rem;border-radius:9999px;font-size:.72rem;font-weight:600;}
+    .topbar-date{font-size:.78rem;color:rgba(59,26,8,.5);}
+    @media(max-width:767px){
+      .topbar{padding:.75rem 1rem;}
+      .topbar h1{font-size:1.2rem;}
+      .topbar-date{display:none;}
+      .admin-badge{font-size:.65rem;padding:.25rem .6rem;}
+    }
     .content{padding:2rem;}
     /* Stat cards */
     .stat-card{background:#fff;border-radius:1rem;padding:1.5rem;border:1px solid rgba(59,26,8,.06);display:flex;align-items:flex-start;gap:1rem;}
@@ -126,7 +133,7 @@ $totalItems = count($allMenu);
     </div>
     <div class="topbar-right">
       <span class="admin-badge"><i class="bi bi-shield-check"></i> Admin</span>
-      <span style="font-size:.78rem;color:rgba(59,26,8,.5)"><?= date('D, M j Y') ?></span>
+      <span class="topbar-date"><?= date('D, M j Y') ?></span>
     </div>
   </div>
 

@@ -50,8 +50,10 @@ $allUsers      = $model->getAll();
     .sidebar-footer a{display:flex;align-items:center;gap:.6rem;font-size:.78rem;color:rgba(251,240,220,.42);text-decoration:none;transition:color .2s;}
     .sidebar-footer a:hover{color:var(--cream);}
     .main{margin-left:240px;flex:1;}
-    .topbar{background:#fff;border-bottom:1px solid rgba(59,26,8,.08);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .topbar{background:#fff;border-bottom:1px solid rgba(59,26,8,.08);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
     .topbar h1{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--brown);}
+    .topbar-date{font-size:.78rem;color:rgba(59,26,8,.5);}
+    @media(max-width:767px){.topbar{padding:.75rem 1rem;}.topbar h1{font-size:1.2rem;}.topbar-date{display:none;}.admin-badge{font-size:.65rem;padding:.25rem .6rem;}}
     .content{padding:2rem;}
     .card-box{background:#fff;border-radius:1rem;border:1px solid rgba(59,26,8,.06);overflow:hidden;margin-bottom:2rem;}
     .card-box-head{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(59,26,8,.06);display:flex;align-items:center;justify-content:space-between;}
@@ -94,7 +96,7 @@ $allUsers      = $model->getAll();
 <div class="main">
   <div class="topbar">
     <h1>Manage Users</h1>
-    <span style="font-size:.78rem;color:rgba(59,26,8,.5)">Logged in as: <?= htmlspecialchars($_SESSION['admin_username']) ?></span>
+    <span class="topbar-date">Logged in as: <?= htmlspecialchars($_SESSION['admin_username']) ?></span>
   </div>
 
   <div class="content">
