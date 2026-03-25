@@ -89,23 +89,18 @@ $totalItems = count($allMenu);
     .btn-cancel{background:rgba(192,57,43,.1);color:#c0392b;}
     .btn-cancel:hover{background:#c0392b;color:#fff;}
     /* Mobile sidebar */
-    .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
-    .sidebar-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
-    .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.4);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-top:.15rem;}
+    .mob-tog{display:none;background:none;border:none;font-size:1.4rem;color:var(--brown);cursor:pointer;padding:.25rem;}
+    .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
+    .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;}
     .sidebar-close:hover{color:var(--cream);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;}
     @media(max-width:767px){
-      .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
+      .sidebar{transform:translateX(-100%);transition:transform .3s ease;z-index:200;}
       .sidebar.open{transform:translateX(0);}
-      .main{margin-left:0;}
-      .mob-tog{display:flex!important;}
-      .sidebar-close{display:block;}
+      .main{margin-left:0!important;}
+      .mob-tog{display:flex!important;align-items:center;}
+      .sidebar-close{display:block!important;}
       .sidebar-overlay.show{display:block;}
-    }
-    /* Desktop: sidebar always visible, overrides Bootstrap offcanvas hide */
-    @media(min-width:768px){
-      .sidebar{position:fixed!important;transform:none!important;visibility:visible!important;display:flex!important;}
-      .main{margin-left:240px;}
-      .mob-tog{display:none!important;}
     }
   </style>
 </head>
@@ -115,10 +110,11 @@ $totalItems = count($allMenu);
 
 
 <!-- Sidebar -->
-<aside class="sidebar offcanvas offcanvas-start" id="sidebar" tabindex="-1">
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div><h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--cream);margin:0">DineLocal</h2><p style="font-size:.62rem;color:rgba(251,240,220,.4);letter-spacing:.12em;margin:0">ADMIN PANEL</p></div>
-    <button class="sidebar-close" data-bs-dismiss="offcanvas"><i class="bi bi-x-lg"></i></button>
+    <button class="sidebar-close" id="sidebarClose"><i class="bi bi-x-lg"></i></button>
   </div>
   <nav class="sidebar-nav">
     <a href="index.php" class="nav-item active"><i class="bi bi-grid"></i> Dashboard</a>
@@ -140,9 +136,7 @@ $totalItems = count($allMenu);
 <div class="main">
   <div class="topbar">
     <div class="d-flex align-items-center gap-3">
-      <button class="mob-tog" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
-        <i class="bi bi-list"></i>
-      </button>
+      <button class="mob-tog" id="sidebarToggle"><i class="bi bi-list"></i></button>
       <h1>Dashboard</h1>
     </div>
     <div class="topbar-right">
@@ -293,6 +287,17 @@ $totalItems = count($allMenu);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+(function(){
+  var tog = document.getElementById('sidebarToggle');
+  var cls = document.getElementById('sidebarClose');
+  var ov  = document.getElementById('sidebarOverlay');
+  var sb  = document.getElementById('sidebar');
+  function openNav(){if(sb&&ov){sb.classList.add('open');ov.classList.add('show');}}
+  function closeNav(){if(sb&&ov){sb.classList.remove('open');ov.classList.remove('show');}}
+  if(tog) tog.addEventListener('click', openNav);
+  if(cls) cls.addEventListener('click', closeNav);
+  if(ov)  ov.addEventListener('click', closeNav);
+})();
 </script>
 </body>
 </html>

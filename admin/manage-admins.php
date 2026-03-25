@@ -136,37 +136,29 @@ $roleLabels = [
     .modal-box h4{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--brown);margin-bottom:1rem;}
     .pw-input{background:#F3E4C6;border:none;border-radius:.45rem;padding:.65rem .9rem;font-size:.875rem;color:var(--brown);outline:none;width:100%;transition:background .2s,box-shadow .2s;}
     .pw-input:focus{background:#fff9f3;box-shadow:0 0 0 2px rgba(196,85,26,.28);}
-    .mob-tog{display:none;background:none;border:none;font-size:1.3rem;color:var(--brown);cursor:pointer;}
-    .sidebar-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
-    .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.4);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-top:.15rem;}
+    .mob-tog{display:none;background:none;border:none;font-size:1.4rem;color:var(--brown);cursor:pointer;padding:.25rem;}
+    .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.5rem 1rem;border-bottom:1px solid rgba(232,168,62,.12);}
+    .sidebar-close{display:none;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;}
     .sidebar-close:hover{color:var(--cream);}
-    .topbar-date{font-size:.78rem;color:rgba(59,26,8,.5);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;}
     @media(max-width:767px){
-      .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
+      .sidebar{transform:translateX(-100%);transition:transform .3s ease;z-index:200;}
       .sidebar.open{transform:translateX(0);}
-      .main{margin-left:0;}
-      .mob-tog{display:flex!important;}
-      .sidebar-close{display:block;}
+      .main{margin-left:0!important;}
+      .mob-tog{display:flex!important;align-items:center;}
+      .sidebar-close{display:block!important;}
       .sidebar-overlay.show{display:block;}
-      .topbar{padding:.75rem 1rem;}
-      .topbar h1{font-size:1.2rem;}
-      .topbar-date{display:none;}
-    }
-    /* Desktop: sidebar always visible, overrides Bootstrap offcanvas hide */
-    @media(min-width:768px){
-      .sidebar{position:fixed!important;transform:none!important;visibility:visible!important;display:flex!important;}
-      .main{margin-left:240px;}
-      .mob-tog{display:none!important;}
     }
   </style>
 </head>
 <body>
 
 
-<aside class="sidebar offcanvas offcanvas-start" id="sidebar" tabindex="-1">
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div><h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--cream);margin:0">DineLocal</h2><p style="font-size:.62rem;color:rgba(251,240,220,.4);letter-spacing:.12em;margin:0">ADMIN PANEL</p></div>
-    <button class="sidebar-close" data-bs-dismiss="offcanvas"><i class="bi bi-x-lg"></i></button>
+    <button class="sidebar-close" id="sidebarClose"><i class="bi bi-x-lg"></i></button>
   </div>
   <nav class="sidebar-nav">
     <a href="index.php"               class="nav-item"><i class="bi bi-grid"></i> Dashboard</a>
@@ -187,7 +179,7 @@ $roleLabels = [
 <div class="main">
   <div class="topbar">
     <div class="d-flex align-items-center gap-3">
-      <button class="mob-tog" data-bs-toggle="offcanvas" data-bs-target="#sidebar"><i class="bi bi-list"></i></button>
+      <button class="mob-tog" id="sidebarToggle"><i class="bi bi-list"></i></button>
       <h1>Manage Admins</h1>
     </div>
     <span class="topbar-date"><i class="bi bi-shield-check me-1" style="color:var(--orange)"></i><?= htmlspecialchars($_SESSION['admin_username']) ?></span>
@@ -334,6 +326,19 @@ $roleLabels = [
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+(function(){
+  var tog = document.getElementById('sidebarToggle');
+  var cls = document.getElementById('sidebarClose');
+  var ov  = document.getElementById('sidebarOverlay');
+  var sb  = document.getElementById('sidebar');
+  function openNav(){if(sb&&ov){sb.classList.add('open');ov.classList.add('show');}}
+  function closeNav(){if(sb&&ov){sb.classList.remove('open');ov.classList.remove('show');}}
+  if(tog) tog.addEventListener('click', openNav);
+  if(cls) cls.addEventListener('click', closeNav);
+  if(ov)  ov.addEventListener('click', closeNav);
+})();
+</script>
+<script>
 function openPwModal(id, name) {
   document.getElementById('pwAdminId').value = id;
   document.getElementById('pwName').textContent = name;
@@ -345,8 +350,6 @@ function closePwModal() {
 document.getElementById('pwModal').addEventListener('click', function(e) {
   if (e.target === this) closePwModal();
 });
-</script>
-<script>
 </script>
 </body>
 </html>
