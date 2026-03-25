@@ -11,10 +11,10 @@ class AdminController {
 
     public function __construct() { $this->db = getDB(); }
 
-    /** Attempt admin login */
+    /** Attempt admin login — accepts username or email */
     public function login(string $username, string $password): bool {
-        $stmt = $this->db->prepare("SELECT * FROM admins WHERE username = ?");
-        $stmt->execute([$username]);
+        $stmt = $this->db->prepare("SELECT * FROM admins WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $username]);
         $admin = $stmt->fetch();
         if (!$admin) return false;
         if (!password_verify($password, $admin['password'])) return false;
@@ -28,7 +28,7 @@ class AdminController {
     public static function requireAuth(): void {
         if (session_status() === PHP_SESSION_NONE) session_start();
         if (empty($_SESSION['admin_id'])) {
-            header('Location: /admin/login.php');
+            header('Location: login.php');
             exit;
         }
     }

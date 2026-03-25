@@ -1,3 +1,29 @@
+<?php
+session_start();
+require_once '../config/db.php';
+require_once '../controllers/AdminController.php';
+AdminController::requireAuth();
+require_once '../models/Reservation.php';
+require_once '../models/Menu.php';
+
+$resModel  = new Reservation();
+$menuModel = new Menu();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $id = (int)($_POST['res_id'] ?? 0);
+    if ($_POST['action'] === 'confirm')   $resModel->updateStatus($id, 'confirmed');
+    if ($_POST['action'] === 'cancel')    $resModel->updateStatus($id, 'cancelled');
+    header('Location: index.php');
+    exit;
+}
+
+$counts     = $resModel->countByStatus();
+$todayRes   = $resModel->getToday();
+$allRes     = $resModel->getAll();
+$allMenu    = $menuModel->getAll();
+$totalRes   = array_sum($counts);
+$totalItems = count($allMenu);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,34 +92,6 @@
   </style>
 </head>
 <body>
-
-<?php
-session_start();
-require_once '../config/db.php';
-require_once '../controllers/AdminController.php';
-AdminController::requireAuth();
-require_once '../models/Reservation.php';
-require_once '../models/Menu.php';
-
-$resModel  = new Reservation();
-$menuModel = new Menu();
-
-// Handle status updates
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $id = (int)($_POST['res_id'] ?? 0);
-    if ($_POST['action'] === 'confirm')   $resModel->updateStatus($id, 'confirmed');
-    if ($_POST['action'] === 'cancel')    $resModel->updateStatus($id, 'cancelled');
-    header('Location: index.php');
-    exit;
-}
-
-$counts     = $resModel->countByStatus();
-$todayRes   = $resModel->getToday();
-$allRes     = $resModel->getAll();
-$allMenu    = $menuModel->getAll();
-$totalRes   = array_sum($counts);
-$totalItems = count($allMenu);
-?>
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">

@@ -1,3 +1,40 @@
+<?php
+session_start();
+require_once '../config/db.php';
+require_once '../controllers/AdminController.php';
+AdminController::requireAuth();
+require_once '../models/Menu.php';
+$model   = new Menu();
+$message = '';
+$editing = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $id     = (int)($_POST['id'] ?? 0);
+    if ($action === 'add' || $action === 'edit_save') {
+        $data = [
+            'name'         => htmlspecialchars(trim($_POST['name'] ?? '')),
+            'description'  => htmlspecialchars(trim($_POST['description'] ?? '')),
+            'price'        => (float)($_POST['price'] ?? 0),
+            'category'     => htmlspecialchars(trim($_POST['category'] ?? '')),
+            'image_url'    => htmlspecialchars(trim($_POST['image_url'] ?? '')),
+            'is_available' => isset($_POST['is_available']) ? 1 : 0,
+            'is_featured'  => isset($_POST['is_featured'])  ? 1 : 0,
+        ];
+        if ($action === 'add')       { $model->create($data); $message = 'Menu item added successfully!'; }
+        if ($action === 'edit_save') { $model->update($id, $data); $message = 'Menu item updated successfully!'; }
+        header('Location: manage-menu.php?msg=' . urlencode($message));
+        exit;
+    }
+    if ($action === 'toggle') { $model->toggleAvailability($id); header('Location: manage-menu.php'); exit; }
+    if ($action === 'delete') { $model->delete($id); header('Location: manage-menu.php'); exit; }
+}
+
+if (isset($_GET['edit'])) { $editing = $model->getById((int)$_GET['edit']); }
+$message    = $_GET['msg'] ?? '';
+$items      = $model->getAll();
+$categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,46 +92,6 @@
   </style>
 </head>
 <body>
-<?php
-session_start();
-require_once '../config/db.php';
-require_once '../controllers/AdminController.php';
-AdminController::requireAuth();
-require_once '../models/Menu.php';
-$model   = new Menu();
-$message = '';
-$editing = null;
-
-// Handle actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $id     = (int)($_POST['id'] ?? 0);
-
-    if ($action === 'add' || $action === 'edit_save') {
-        $data = [
-            'name'         => htmlspecialchars(trim($_POST['name'] ?? '')),
-            'description'  => htmlspecialchars(trim($_POST['description'] ?? '')),
-            'price'        => (float)($_POST['price'] ?? 0),
-            'category'     => htmlspecialchars(trim($_POST['category'] ?? '')),
-            'image_url'    => htmlspecialchars(trim($_POST['image_url'] ?? '')),
-            'is_available' => isset($_POST['is_available']) ? 1 : 0,
-            'is_featured'  => isset($_POST['is_featured'])  ? 1 : 0,
-        ];
-        if ($action === 'add')       { $model->create($data); $message = 'Menu item added successfully!'; }
-        if ($action === 'edit_save') { $model->update($id, $data); $message = 'Menu item updated successfully!'; }
-        header('Location: manage-menu.php?msg=' . urlencode($message));
-        exit;
-    }
-    if ($action === 'toggle') { $model->toggleAvailability($id); header('Location: manage-menu.php'); exit; }
-    if ($action === 'delete') { $model->delete($id); header('Location: manage-menu.php'); exit; }
-}
-
-// Edit mode
-if (isset($_GET['edit'])) { $editing = $model->getById((int)$_GET['edit']); }
-$message = $_GET['msg'] ?? '';
-$items   = $model->getAll();
-$categories = ['Starters', 'Mains', 'Desserts', 'Drinks', 'Specials'];
-?>
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo"><h2>DineLocal</h2><p>ADMIN PANEL</p></div>

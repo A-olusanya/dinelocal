@@ -1,3 +1,24 @@
+<?php
+session_start();
+require_once '../config/db.php';
+require_once '../controllers/AdminController.php';
+AdminController::requireAuth();
+require_once '../models/Reservation.php';
+$model = new Reservation();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $id = (int)($_POST['res_id'] ?? 0);
+    if ($_POST['action'] === 'confirm')  $model->updateStatus($id, 'confirmed');
+    if ($_POST['action'] === 'cancel')   $model->updateStatus($id, 'cancelled');
+    if ($_POST['action'] === 'delete')   $model->delete($id);
+    header('Location: manage-reservations.php');
+    exit;
+}
+
+$filter = $_GET['status'] ?? 'all';
+$all    = $filter === 'all' ? $model->getAll() : $model->getByStatus($filter);
+$counts = $model->countByStatus();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,27 +72,6 @@
   </style>
 </head>
 <body>
-<?php
-session_start();
-require_once '../config/db.php';
-require_once '../controllers/AdminController.php';
-AdminController::requireAuth();
-require_once '../models/Reservation.php';
-$model = new Reservation();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $id = (int)($_POST['res_id'] ?? 0);
-    if ($_POST['action'] === 'confirm')  $model->updateStatus($id, 'confirmed');
-    if ($_POST['action'] === 'cancel')   $model->updateStatus($id, 'cancelled');
-    if ($_POST['action'] === 'delete')   $model->delete($id);
-    header('Location: manage-reservations.php');
-    exit;
-}
-
-$filter = $_GET['status'] ?? 'all';
-$all    = $filter === 'all' ? $model->getAll() : $model->getByStatus($filter);
-$counts = $model->countByStatus();
-?>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo"><h2>DineLocal</h2><p>ADMIN PANEL</p></div>
   <nav class="sidebar-nav">
