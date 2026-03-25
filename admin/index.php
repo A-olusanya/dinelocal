@@ -134,7 +134,7 @@ $totalItems = count($allMenu);
 
     <!-- Stats -->
     <div class="row g-3 mb-4">
-      <div class="col-6 col-md-3">
+      <div class="col-12 col-md-3">
         <div class="stat-card">
           <div class="stat-icon si-orange"><i class="bi bi-calendar2-check"></i></div>
           <div>
@@ -143,7 +143,7 @@ $totalItems = count($allMenu);
           </div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-12 col-md-3">
         <div class="stat-card">
           <div class="stat-icon si-gold"><i class="bi bi-hourglass-split"></i></div>
           <div>
@@ -152,7 +152,7 @@ $totalItems = count($allMenu);
           </div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-12 col-md-3">
         <div class="stat-card">
           <div class="stat-icon si-green"><i class="bi bi-check-circle"></i></div>
           <div>
@@ -161,7 +161,7 @@ $totalItems = count($allMenu);
           </div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-12 col-md-3">
         <div class="stat-card">
           <div class="stat-icon si-blue"><i class="bi bi-card-list"></i></div>
           <div>
