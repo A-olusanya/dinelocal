@@ -127,7 +127,8 @@ $tab     = $_GET['tab'] ?? 'reservations';
     .empty-state p{font-size:.88rem;color:rgba(59,26,8,.45);}
     /* Mobile sidebar toggle */
     .mob-dash-tog{display:none;background:var(--orange);color:#fff;border:none;padding:.55rem 1.1rem;border-radius:9999px;font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:1.25rem;box-shadow:0 3px 12px rgba(196,85,26,.35);}
-    .dash-side-close{display:none;position:absolute;top:.85rem;right:.85rem;background:none;border:none;color:rgba(251,240,220,.5);font-size:1.2rem;cursor:pointer;}
+    .dash-side-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;}
+    .dash-side-close{display:none;background:none;border:none;color:rgba(251,240,220,.4);font-size:1.15rem;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-top:.25rem;}
     .dash-side-close:hover{color:var(--cream);}
     .dash-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:98;}
     @media(max-width:768px){
@@ -146,10 +147,14 @@ $tab     = $_GET['tab'] ?? 'reservations';
 
 <div class="dash-wrap">
   <!-- Sidebar -->
-  <aside class="dash-side" id="dashSide" style="position:relative;">
-    <button class="dash-side-close" onclick="closeDashSide()"><i class="bi bi-x-lg"></i></button>
-    <div class="dash-logo">DineLocal</div>
-    <div class="dash-logo-sub">MY ACCOUNT</div>
+  <aside class="dash-side" id="dashSide">
+    <div class="dash-side-header">
+      <div>
+        <div class="dash-logo">DineLocal</div>
+        <div class="dash-logo-sub" style="margin-bottom:0">MY ACCOUNT</div>
+      </div>
+      <button class="dash-side-close" onclick="closeDashSide()"><i class="bi bi-x-lg"></i></button>
+    </div>
     <div class="dash-avatar"><?= strtoupper(substr($user['name'], 0, 1)) ?></div>
     <div class="dash-name"><?= htmlspecialchars($user['name']) ?></div>
     <div class="dash-email"><?= htmlspecialchars($user['email']) ?></div>

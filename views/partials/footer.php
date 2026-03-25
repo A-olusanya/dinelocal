@@ -80,6 +80,10 @@
   </div>
 </footer>
 
+<!-- Custom cursor (desktop only, hidden on touch) -->
+<div id="cursor"></div>
+<div id="progress-bar"></div>
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Site JS -->

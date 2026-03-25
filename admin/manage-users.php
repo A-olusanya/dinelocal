@@ -75,9 +75,12 @@ $allUsers      = $model->getAll();
 </head>
 <body>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <aside class="sidebar" id="sidebar">
-  <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
-  <div class="sidebar-logo"><h2>DineLocal</h2><p>ADMIN PANEL</p></div>
+  <div class="sidebar-header">
+    <div><h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--cream);margin:0">DineLocal</h2><p style="font-size:.62rem;color:rgba(251,240,220,.4);letter-spacing:.12em;margin:0">ADMIN PANEL</p></div>
+    <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+  </div>
   <nav class="sidebar-nav">
     <a href="index.php"                class="nav-item"><i class="bi bi-grid"></i> Dashboard</a>
     <a href="manage-reservations.php"  class="nav-item"><i class="bi bi-calendar2-check"></i> Reservations</a>
