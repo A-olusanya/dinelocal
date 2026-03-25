@@ -1,0 +1,20 @@
+Options -Indexes
+DirectoryIndex index.php
+
+# Pretty error pages
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
+
+# Block direct access to sensitive files
+<FilesMatch "\.(sql|env|log|sh|md|toml|json)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Block config/models/controllers from direct browser access
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^models/ - [F,L]
+    RewriteRule ^controllers/ - [F,L]
+</IfModule>
