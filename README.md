@@ -2,7 +2,7 @@
 
 A full-stack restaurant management web application built with PHP, MySQL, and Bootstrap 5. DineLocal allows customers to browse the menu, make reservations, and manage their accounts — while giving restaurant staff a dedicated admin panel to manage everything.
 
-**Live site:** [https://dinelocal-f4hehddpe6bmhnh0.canadacentral-01.azurewebsites.net/welcome.php](https://dinelocal.azurewebsites.net)
+**Live site:** [https://dinelocal-f4hehddpe6bmhnh0.canadacentral-01.azurewebsites.net/welcome.php)
 
 ---
 
